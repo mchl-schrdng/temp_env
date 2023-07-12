@@ -45,7 +45,7 @@ jobs:
         service: streamlit-app-pr-${{ github.event.pull_request.number }}  # Specify a unique name for the service per pull request
         image: gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }}
         credentials: ${{ secrets.GCR_JSON_KEY }}
-        region: europe-west1-b
+        region: us-central1
         allow_unauthenticated: true  # Make the deployed app publicly accessible
 
     - name: Delete service  # Delete the Cloud Run service when the PR is closed

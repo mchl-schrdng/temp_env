@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app
 
 # Make port 80 available to the world outside this container
-EXPOSE 8501
+EXPOSE 8080
 
 # Run the command to start the server when the container launches
 CMD streamlit run app.py

@@ -44,6 +44,8 @@ jobs:
         service: streamlit-app-pr-${{ github.event.pull_request.number }}
         image: gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }}
         credentials: ${{ secrets.GCR_JSON_KEY }}
+        region: us-central1
+        allow_unauthenticated: true  # Add this line
 
     - name: Delete service
       if: github.event.action == 'closed'

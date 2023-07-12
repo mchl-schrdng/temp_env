@@ -43,3 +43,5 @@ jobs:
         service: streamlit-app
         image: gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:latest
         credentials: ${{ secrets.GCR_JSON_KEY }}
+        region: us-central1
+        allow_unauthenticated: true  # Add this line

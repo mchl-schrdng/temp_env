@@ -58,6 +58,7 @@ jobs:
     - name: Comment PR
       uses: actions/github-script@v5
       with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
         script: |
           const issue_number = context.issue.number;
           const url = `https://${{ steps.deploy.outputs.url }}`;

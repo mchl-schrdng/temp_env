@@ -16,7 +16,7 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Set up Cloud SDK  # This step sets up the Google Cloud SDK 
-      uses: google-github-actions/setup-gcloud@master
+      uses: google-github-actions/setup-gcloud@v0
       with:
         project_id: ${{ secrets.PROJECT_ID }}  # Insert your Google Cloud project ID here
         service_account_key: ${{ secrets.GCR_JSON_KEY }}  # Insert your service account key here

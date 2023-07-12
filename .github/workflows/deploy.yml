@@ -45,7 +45,7 @@ jobs:
         service: streamlit-app
         image: gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:latest  # Use the 'latest' image for deployment
         credentials: ${{ secrets.GCR_JSON_KEY }}
-        region: europe-west1-b
+        region: us-central1 # Use the appropriate region for your needs
         allow_unauthenticated: true  # Allow unauthenticated (public) access to the deployed app
 
     - name: Notify of Deployment  # Add a comment to the commit in the main branch with the URL of the deployed app

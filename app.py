@@ -2,7 +2,7 @@ import streamlit as st
 from PIL import Image
 
 def test_elements():
-    st.title('My first app with Splinter')
+    st.title('My first app')
     st.button("Click me")
     st.checkbox("Check me")
     st.text_input("Input some text")

@@ -58,6 +58,9 @@ jobs:
 
     - name: Set Environment Variables
       run: echo "CYPRESS_BASE_URL=${{ steps.deploy.outputs.url }}" >> $GITHUB_ENV
+      
+    - name: Log CYPRESS_BASE_URL
+      run: echo $CYPRESS_BASE_URL
 
     - name: Run Cypress tests
       id: tests

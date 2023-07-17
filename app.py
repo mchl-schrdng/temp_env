@@ -1,11 +1,11 @@
 import streamlit as st
+from PIL import Image
 
-def main():
-    st.title('Hello App')
+st.title('My first app with Splinter')
 
-    user_name = st.text_input('Enter your name')
-    if user_name:
-        st.write(f'Hello, {user_name}!')
+uploaded_file = st.file_uploader("Choose an image...", type="jpg")
 
-if __name__ == '__main__':
-    main()
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    st.image(image, caption='Uploaded Image.', use_column_width=True)
+    st.success('Your image has been uploaded successfully!')

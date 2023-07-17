@@ -58,6 +58,17 @@ jobs:
         command-prefix: npx
       continue-on-error: true  # This allows the workflow to continue even if this step fails
 
+    - name: Determine test status
+      id: test-status
+      run: |
+        if [ "${{ steps.cypress.outcome }}" == "success" ]; then
+          echo "::set-output name=status::passed"
+          echo "::set-output name=message::All tests have passed."
+        else
+          echo "::set-output name=status::failed"
+          echo "::set-output name=message::One or more tests have failed. Please check the Action logs for details."
+        fi
+
     - name: Delete service  # Delete the Cloud Run service when the PR is closed
       if: github.event.action == 'closed'
       run: |
@@ -65,7 +76,7 @@ jobs:
       env:
         GCLOUD_PROJECT_ID: ${{ secrets.PROJECT_ID }}
         GCLOUD_AUTH: ${{ secrets.GCR_JSON_KEY }}
-        
+
     - name: Comment PR
       uses: actions/github-script@v5
       with:
@@ -73,8 +84,8 @@ jobs:
         script: |
           const issue_number = context.issue.number;
           const url = ${{ steps.deploy.outputs.url }};
-          const testStatus = ${{ steps.cypress.outcome == 'success' ? 'passed' : 'failed' }};
-          const testMessage = testStatus == 'passed' ? 'All tests have passed.' : 'One or more tests have failed. Please check the Action logs for details.';
+          const testStatus = "${{ steps.test-status.outputs.status }}";
+          const testMessage = "${{ steps.test-status.outputs.message }}";
           github.rest.issues.createComment({
             owner: context.repo.owner,
             repo: context.repo.repo,

@@ -2,7 +2,7 @@
 
 describe('My First Test', () => {
   it('Visits the app', () => {
-    cy.visit('http://localhost:8501')  // visit the url of your app
+    cy.visit(Cypress.env('CYPRESS_BASE_URL'));
 
     cy.contains('My first app') // assert that the page contains this title
 

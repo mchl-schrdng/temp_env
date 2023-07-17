@@ -50,7 +50,8 @@ jobs:
         
     - name: Allow unauthenticated invocations
       run: |
-        echo '{"bindings":[{"members":["allUsers"],"role":"roles/run.invoker"}]}' | gcloud run services set-iam-policy ${{ steps.deploy.outputs.service }} -
+        echo '{"bindings":[{"members":["allUsers"],"role":"roles/run.invoker"}]}' > policy.json
+        gcloud run services set-iam-policy ${{ steps.deploy.outputs.service }} policy.json
 
     - name: Set up Node.js environment
       uses: actions/setup-node@v2

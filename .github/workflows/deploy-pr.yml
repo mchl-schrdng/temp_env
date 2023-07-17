@@ -47,6 +47,16 @@ jobs:
         credentials: ${{ secrets.GCR_JSON_KEY }}
         region: us-central1 # Use the appropriate region for your needs
         allow_unauthenticated: true  # Make the deployed app publicly accessible
+    
+    - name: Run Cypress tests
+      id: cypress
+      if: github.event.action != 'closed'
+      uses: cypress-io/github-action@v2
+      with:
+        start: npm start
+        wait-on: ${{ steps.deploy.outputs.url }}
+        command-prefix: npx
+      continue-on-error: true  # This allows the workflow to continue even if this step fails
 
     - name: Delete service  # Delete the Cloud Run service when the PR is closed
       if: github.event.action == 'closed'
@@ -56,16 +66,28 @@ jobs:
         GCLOUD_PROJECT_ID: ${{ secrets.PROJECT_ID }}
         GCLOUD_AUTH: ${{ secrets.GCR_JSON_KEY }}
         
-    - name: Comment PR  # Add a comment to the PR with the URL of the deployed app
+        - name: Run Cypress tests
+      id: cypress
+      if: github.event.action != 'closed'
+      uses: cypress-io/github-action@v2
+      with:
+        start: npm start
+        wait-on: ${{ steps.deploy.outputs.url }}
+        command-prefix: npx
+      continue-on-error: true  # This allows the workflow to continue even if this step fails
+
+    - name: Comment PR
       uses: actions/github-script@v5
       with:
-        github-token: ${{ secrets.GH_PAT }}  # Use the personal access token to overcome restrictions of GITHUB_TOKEN
+        github-token: ${{ secrets.GH_PAT }}
         script: |
           const issue_number = context.issue.number;
-          const url = '${{ steps.deploy.outputs.url }}';
+          const url = ${{ steps.deploy.outputs.url }};
+          const testStatus = ${{ steps.cypress.outcome == 'success' ? 'passed' : 'failed' }};
+          const testMessage = testStatus == 'passed' ? 'All tests have passed.' : 'One or more tests have failed. Please check the Action logs for details.';
           github.rest.issues.createComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: issue_number,
-            body: `🚀 Your preview environment has been deployed!\n\nYou can access it here: ${url}`
+            body: `🚀 Your preview environment has been deployed!\n\nYou can access it here: ${url}\n\nTest Status: ${testStatus}\n${testMessage}`
           });

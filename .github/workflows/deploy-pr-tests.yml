@@ -56,9 +56,6 @@ jobs:
     - name: Install Node.js dependencies
       run: npm install
       
-    - name: Prepare Cypress config
-      run: echo '{"baseUrl":"https://'"${{ steps.deploy.outputs.url }}'"}' > cypress.json
-
     - name: Run Cypress tests
       id: tests
       continue-on-error: true  # continue even if tests fail

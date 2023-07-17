@@ -1,9 +1,6 @@
 // cypress.config.js
-
 module.exports = {
+  testingType: "e2e",
   integrationFolder: "cypress/integration",
-  testFiles: "**/*_spec.js",
-  env: {
-    CYPRESS_BASE_URL: process.env.CYPRESS_BASE_URL,
-  },
+  testFiles: "**/*_spec.js"
 }

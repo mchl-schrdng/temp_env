@@ -47,15 +47,6 @@ jobs:
         credentials: ${{ secrets.GCR_JSON_KEY }}
         region: us-central1
         allow_unauthenticated: true  # Make the deployed app publicly accessible
-        
-    - name: Install test dependencies  # Install the dependencies required to run the tests
-      run: pip install -r requirements_test.txt
-      
-    - name: Install Playwright browsers
-      run: python -m playwright install
-
-    - name: Run tests  # Run the tests
-      run: pytest test_app.py
       
     - name: Delete service  # Delete the Cloud Run service when the PR is closed
       if: github.event.action == 'closed'

@@ -47,27 +47,13 @@ jobs:
         credentials: ${{ secrets.GCR_JSON_KEY }}
         region: us-central1 # Use the appropriate region for your needs
         allow_unauthenticated: true  # Make the deployed app publicly accessible
-    
-    - name: Run Cypress tests
-      id: cypress
-      if: github.event.action != 'closed'
-      uses: cypress-io/github-action@v2
-      with:
-        start: npm start
-        wait-on: ${{ steps.deploy.outputs.url }}
-        command-prefix: npx
-      continue-on-error: true  # This allows the workflow to continue even if this step fails
 
-    - name: Determine test status
-      id: test-status
+    - name: Run Cypress tests
+      if: github.event.action != 'closed'
       run: |
-        if [ "${{ steps.cypress.outcome }}" == "success" ]; then
-          echo "::set-output name=status::passed"
-          echo "::set-output name=message::All tests have passed."
-        else
-          echo "::set-output name=status::failed"
-          echo "::set-output name=message::One or more tests have failed. Please check the Action logs for details."
-        fi
+        docker pull cypress/included:8.7.0  # Pull the Cypress Docker image
+        docker run -v $PWD:/e2e -w /e2e --network="host" cypress/included:8.7.0 --headless --config baseUrl=${{ steps.deploy.outputs.url }}
+      continue-on-error: true
 
     - name: Delete service  # Delete the Cloud Run service when the PR is closed
       if: github.event.action == 'closed'
@@ -83,12 +69,10 @@ jobs:
         github-token: ${{ secrets.GH_PAT }}
         script: |
           const issue_number = context.issue.number;
-          const url = "${{ steps.deploy.outputs.url }}";
-          const testStatus = "${{ steps.test-status.outputs.status }}";
-          const testMessage = "${{ steps.test-status.outputs.message }}";
+          const url = ${{ steps.deploy.outputs.url }};
           github.rest.issues.createComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: issue_number,
-            body: "🚀 Your preview environment has been deployed!\n\nYou can access it here: " + url + "\n\nTest Status: " + testStatus + "\n" + testMessage
+            body: `🚀 Your preview environment has been deployed!\n\nYou can access it here: ${url}`
           });

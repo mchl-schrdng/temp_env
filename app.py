@@ -1,11 +1,22 @@
 import streamlit as st
 from PIL import Image
 
-st.title('My first app with Splinter')
+def test_elements():
+    st.title('My first app with Splinter')
+    st.button("Click me")
+    st.checkbox("Check me")
+    st.text_input("Input some text")
 
-uploaded_file = st.file_uploader("Choose an image...", type="jpg")
+    # Show a selectbox and give it a unique label for easy testing
+    selectbox = st.selectbox(
+        "How would you like to be contacted?",
+        ("Email", "Home phone", "Mobile phone")
+    )
+    if selectbox:
+        st.write(f"You selected {selectbox}")
 
-if uploaded_file is not None:
-    image = Image.open(uploaded_file)
-    st.image(image, caption='Uploaded Image.', use_column_width=True)
-    st.success('Your image has been uploaded successfully!')
+def main():
+    test_elements()
+
+if __name__ == "__main__":
+    main()

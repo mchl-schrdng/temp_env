@@ -47,7 +47,7 @@ jobs:
         credentials: ${{ secrets.GCR_JSON_KEY }}
         region: us-central1
         allow_unauthenticated: true  # Make the deployed app publicly accessible
-
+        
     - name: Set up Node.js environment
       uses: actions/setup-node@v2
       with:
@@ -55,13 +55,14 @@ jobs:
 
     - name: Install Node.js dependencies
       run: npm install
-      
+
+    - name: Set Environment Variables
+      run: echo "CYPRESS_BASE_URL=https://${{ steps.deploy.outputs.url }}" >> $GITHUB_ENV
+
     - name: Run Cypress tests
       id: tests
       continue-on-error: true  # continue even if tests fail
       run: npx cypress run
-      env:
-        CYPRESS_BASE_URL: https://${{ steps.deploy.outputs.url }}  # Use the URL of the deployed app
 
     - name: Comment PR  # Add a comment to the PR with the URL of the deployed app
       uses: actions/github-script@v5

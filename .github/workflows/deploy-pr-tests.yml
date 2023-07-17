@@ -57,7 +57,7 @@ jobs:
       run: npm install
 
     - name: Set Environment Variables
-      run: echo "CYPRESS_BASE_URL=https://${{ steps.deploy.outputs.url }}" >> $GITHUB_ENV
+      run: echo "CYPRESS_BASE_URL=${{ steps.deploy.outputs.url }}" >> $GITHUB_ENV
 
     - name: Run Cypress tests
       id: tests

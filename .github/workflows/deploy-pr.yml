@@ -83,12 +83,12 @@ jobs:
         github-token: ${{ secrets.GH_PAT }}
         script: |
           const issue_number = context.issue.number;
-          const url = ${{ steps.deploy.outputs.url }};
+          const url = "${{ steps.deploy.outputs.url }}";
           const testStatus = "${{ steps.test-status.outputs.status }}";
           const testMessage = "${{ steps.test-status.outputs.message }}";
           github.rest.issues.createComment({
             owner: context.repo.owner,
             repo: context.repo.repo,
             issue_number: issue_number,
-            body: `🚀 Your preview environment has been deployed!\n\nYou can access it here: ${url}\n\nTest Status: ${testStatus}\n${testMessage}`
+            body: "🚀 Your preview environment has been deployed!\n\nYou can access it here: " + url + "\n\nTest Status: " + testStatus + "\n" + testMessage
           });

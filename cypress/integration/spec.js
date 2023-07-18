@@ -2,7 +2,7 @@
 
 describe('My First Test', () => {
   it('Visits the app', () => {
-    cy.visit('https://streamlit-app-pr-66-iyxvyhs26a-uc.a.run.app');
+    cy.visit(Cypress.env('CYPRESS_BASE_URL'));
 
     cy.contains('My first app'); // assert that the page contains this title
   })

@@ -1,7 +1,7 @@
 # Streamlit App Deployment via GitHub Actions
 
 This repository demonstrates the automatic deployment of a Streamlit application via GitHub Actions to Google Cloud Run.
-
+     
 ## Deployment
 
 The deployment process of the application is automated with GitHub Actions workflows, interacting with Google Cloud Run to handle the hosting of the application. Two separate environments are created for different stages of the development process:

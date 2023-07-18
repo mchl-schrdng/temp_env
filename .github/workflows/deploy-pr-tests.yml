@@ -40,18 +40,16 @@ jobs:
     - name: Deploy to Cloud Run  # Deploy the Docker image to Cloud Run
       id: deploy
       if: github.event.action != 'closed'  # Only deploy if the PR is not closed
-      uses: google-github-actions/deploy-cloudrun@main
-      with:
-        service: streamlit-app-pr-${{ github.event.pull_request.number }}  # Specify a unique name for the service per pull request
-        image: gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }}
-        credentials: ${{ secrets.GCR_JSON_KEY }}
-        region: us-central1
-        allow_unauthenticated: true  # Make the deployed app publicly accessible
-        
-    - name: Allow unauthenticated invocations
       run: |
-        echo '{"bindings":[{"members":["allUsers"],"role":"roles/run.invoker"}]}' > policy.json
-        gcloud run services set-iam-policy streamlit-app-pr-49 policy.json --region=us-central1
+        gcloud run deploy streamlit-app-pr-${{ github.event.pull_request.number }} \
+        --region us-central1 \
+        --image gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }} \
+        --platform managed \
+        --allow-unauthenticated \
+        --project ${{ secrets.PROJECT_ID }}
+      env:
+        GCLOUD_PROJECT: ${{ secrets.PROJECT_ID }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCR_JSON_KEY }}
 
     - name: Set up Node.js environment
       uses: actions/setup-node@v2

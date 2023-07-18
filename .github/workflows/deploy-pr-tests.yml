@@ -41,15 +41,16 @@ jobs:
       id: deploy
       if: github.event.action != 'closed'  # Only deploy if the PR is not closed
       run: |
-        gcloud run deploy streamlit-app-pr-${{ github.event.pull_request.number }} \
+        URL=$(gcloud run deploy streamlit-app-pr-${{ github.event.pull_request.number }} \
         --region us-central1 \
         --image gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }} \
         --platform managed \
         --allow-unauthenticated \
-        --project ${{ secrets.PROJECT_ID }}
+        --project ${{ secrets.PROJECT_ID }} \
+        --format 'value(status.url)')
+        echo "URL=$URL" >> $GITHUB_ENV
       env:
-        GCLOUD_PROJECT: ${{ secrets.PROJECT_ID }}
-        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCR_JSON_KEY }}
+        GCLOUD_PROJECT: ${{ secrets.PROJECT_ID }}        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCR_JSON_KEY }}
 
     - name: Set up Node.js environment
       uses: actions/setup-node@v2

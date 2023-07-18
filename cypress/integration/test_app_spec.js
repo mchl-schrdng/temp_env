@@ -2,7 +2,7 @@
 
 describe('My First Test', () => {
   it('Visits the app', () => {
-    cy.visit('/');
+    cy.visit(Cypress.env('CYPRESS_BASE_URL'));
 
     cy.contains('My first app'); // assert that the page contains this title
 
@@ -16,4 +16,4 @@ describe('My First Test', () => {
     cy.get('select').select('Email');
     cy.contains('You selected Email');
   })
-})
+});

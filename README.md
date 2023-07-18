@@ -1,5 +1,5 @@
 # Streamlit App Deployment via GitHub Actions
-
+ 
 This repository demonstrates the automatic deployment of a Streamlit application via GitHub Actions to Google Cloud Run.
 
 ## Deployment

@@ -2,7 +2,7 @@
 
 describe('My First Test', () => {
   it('Visits the app', () => {
-    cy.visit(Cypress.env('CYPRESS_BASE_URL'));
+    cy.visit(Cypress.env('/'));
 
     cy.contains('My first app'); // assert that the page contains this title
 

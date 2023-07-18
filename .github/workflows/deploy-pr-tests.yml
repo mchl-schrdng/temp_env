@@ -50,7 +50,8 @@ jobs:
         --format 'value(status.url)')
         echo "URL=$URL" >> $GITHUB_ENV
       env:
-        GCLOUD_PROJECT: ${{ secrets.PROJECT_ID }}        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCR_JSON_KEY }}
+        GCLOUD_PROJECT: ${{ secrets.PROJECT_ID }}
+        GOOGLE_APPLICATION_CREDENTIALS: ${{ secrets.GCR_JSON_KEY }}
 
     - name: Set up Node.js environment
       uses: actions/setup-node@v2

@@ -60,8 +60,8 @@ jobs:
       run: npm install cypress --save-dev
 
     - name: Set Environment Variables
-      run: echo "CYPRESS_BASE_URL=${{ steps.deploy.outputs.url }}" >> $GITHUB_ENV
-      
+      run: echo "CYPRESS_BASE_URL=$URL" >> $GITHUB_ENV
+
     - name: Log CYPRESS_BASE_URL
       run: echo $CYPRESS_BASE_URL
 

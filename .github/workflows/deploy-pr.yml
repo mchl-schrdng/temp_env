@@ -50,6 +50,7 @@ jobs:
 
     - name: Run ZAP Scan
       if: github.event.action != 'closed'
+      id: zap_scan
       continue-on-error: true
       uses: zaproxy/action-full-scan@v0.2.0
       with:
@@ -57,9 +58,12 @@ jobs:
 
     - name: Extract ZAP summary
       if: github.event.action != 'closed'
-      id: zap_summary
       run: |
         summary=$(echo "${{ steps.zap_scan.outputs.stdout }}" | grep -E 'FAIL-NEW:|WARN-NEW:|INFO:|IGNORE:|PASS:')
+        if [ -z "$summary" ]; then
+          echo "ZAP Summary is empty!"
+          exit 1
+        fi
         echo "ZAP_SUMMARY=$summary" >> $GITHUB_ENV
 
     - name: Comment PR with Deployment and ZAP summary

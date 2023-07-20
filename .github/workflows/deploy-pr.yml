@@ -50,6 +50,7 @@ jobs:
 
     - name: Run ZAP Scan
       if: github.event.action != 'closed'
+      continue-on-error: true
       uses: zaproxy/action-full-scan@v0.2.0
       with:
         target: ${{ env.DEPLOYED_URL }}

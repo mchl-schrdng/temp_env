@@ -1,9 +1,9 @@
 # This workflow runs on each pull request event (open, synchronize, and close).
 name: Deploy to Review Environment
 
-#on:
-#  pull_request:
-#    types: [opened, synchronize, closed]
+on:
+  pull_request:
+    types: [opened, synchronize, closed]
 
 jobs:
   deploy:
@@ -47,6 +47,12 @@ jobs:
         credentials: ${{ secrets.GCR_JSON_KEY }}
         region: us-central1
         allow_unauthenticated: true  # Make the deployed app publicly accessible
+
+    - name: Run ZAP Scan
+      if: github.event.action != 'opened'  # Only run the scan if the PR is not closed
+      uses: zaproxy/action-full-scan@v0.2.0
+      with:
+        target: ${{ steps.deploy.outputs.url }}  # This assumes the deploy step outputs the URL, adjust if not the case
       
     - name: Delete service  # Delete the Cloud Run service when the PR is closed
       if: github.event.action == 'closed'

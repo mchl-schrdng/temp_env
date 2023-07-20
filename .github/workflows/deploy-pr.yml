@@ -1,9 +1,9 @@
 # This workflow runs on each pull request event (open, synchronize, and close).
 name: Deploy to Review Environment
 
-on:
-  pull_request:
-    types: [opened, synchronize, closed]
+#on:
+#  pull_request:
+#    types: [opened, synchronize, closed]
 
 jobs:
   deploy:

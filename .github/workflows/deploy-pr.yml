@@ -54,6 +54,27 @@ jobs:
       with:
         target: ${{ env.DEPLOYED_URL }}
 
+    - name: Extract ZAP summary
+      if: github.event.action != 'closed'
+      id: zap_summary
+      run: |
+        summary=$(echo "${{ steps.zap_scan.outputs.stdout }}" | grep -E 'FAIL-NEW:|WARN-NEW:|INFO:|IGNORE:|PASS:')
+        echo "ZAP_SUMMARY=$summary" >> $GITHUB_ENV
+
+    - name: Comment PR with Deployment and ZAP summary
+      if: github.event.action != 'closed'
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.GH_PAT }}
+        script: |
+          const issue_number = context.issue.number;
+          github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issue_number,
+            body: `🚀 Your preview environment has been deployed!\n\nYou can access it here: https://${{ env.DEPLOYED_URL }}\n\nZAP Scan Results:\n\n${process.env.ZAP_SUMMARY}`
+          });
+
     - name: Delete service
       if: github.event.action == 'closed'
       run: |
@@ -61,17 +82,3 @@ jobs:
       env:
         GCLOUD_PROJECT_ID: ${{ secrets.PROJECT_ID }}
         GCLOUD_AUTH: ${{ secrets.GCR_JSON_KEY }}
-
-    - name: Comment PR
-      uses: actions/github-script@v5
-      with:
-        github-token: ${{ secrets.GH_PAT }}
-        script: |
-          const issue_number = context.issue.number;
-          const url = `https://${{ env.DEPLOYED_URL }}`;
-          github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: issue_number,
-            body: `🚀 Your preview environment has been deployed!\n\nYou can access it here: ${url}`
-          });

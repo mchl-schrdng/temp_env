@@ -54,7 +54,7 @@ jobs:
       continue-on-error: true 
       uses: zaproxy/action-full-scan@v0.5.1
       with:
-        target: ${{ env.DEPLOYED_URL }}
+        target: '${{ steps.deploy.outputs.url }}'
 
     - name: Delete service  # Delete the Cloud Run service when the PR is closed
       if: github.event.action == 'closed'

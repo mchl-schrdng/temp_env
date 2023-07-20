@@ -37,19 +37,28 @@ jobs:
         push: true
         tags: gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }}
 
-    - name: Deploy to Cloud Run  # Deploy the Docker image to Cloud Run
-      id: deploy
+#    - name: Deploy to Cloud Run  # Deploy the Docker image to Cloud Run
+#      id: deploy
+#      if: github.event.action != 'closed'  # Only deploy if the PR is not closed
+#      uses: google-github-actions/deploy-cloudrun@main
+#      with:
+#        service: streamlit-app-pr-${{ github.event.pull_request.number }}  # Specify a unique name for the service per pull request
+#        image: gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }}
+#        credentials: ${{ secrets.GCR_JSON_KEY }}
+#        region: us-central1
+#        allow_unauthenticated: true  # Make the deployed app publicly accessible
+        
+    - name: Deploy to Cloud Run using gcloud
       if: github.event.action != 'closed'  # Only deploy if the PR is not closed
-      uses: google-github-actions/deploy-cloudrun@main
-      with:
-        service: streamlit-app-pr-${{ github.event.pull_request.number }}  # Specify a unique name for the service per pull request
-        image: gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }}
-        credentials: ${{ secrets.GCR_JSON_KEY }}
-        region: us-central1
-        allow_unauthenticated: true  # Make the deployed app publicly accessible
+      run: |
+        gcloud run deploy streamlit-app-pr-${{ github.event.pull_request.number }} \
+          --image gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }} \
+          --platform managed \
+          --region us-central1 \
+          --allow-unauthenticated
 
     - name: Run ZAP Scan
-      if: github.event.action != 'opened'  # Only run the scan if the PR is not closed
+      if: github.event.action != 'closed'  # Only run the scan if the PR is not closed
       uses: zaproxy/action-full-scan@v0.2.0
       with:
         target: ${{ steps.deploy.outputs.url }}  # This assumes the deploy step outputs the URL, adjust if not the case

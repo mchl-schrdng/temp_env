@@ -63,7 +63,7 @@ jobs:
         uses: zaproxy/action-full-scan@v0.5.1
         with:
           target: ${{ env.DEPLOYED_URL }}
-          fail_action: false
+          fail_action: true
 
       # Step 8: Delete the deployed service on Cloud Run when the PR is closed
       - name: Delete service

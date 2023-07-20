@@ -1,0 +1,79 @@
+# This workflow runs on each pull request event (open, synchronize, and close).
+name: Deploy to Review Environment
+
+on:
+  pull_request:
+    types: [opened, synchronize, closed]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest  # Specify the type of machine to run the job on
+
+    steps:
+    - name: Checkout code  # Checkout your repository content into the runner
+      uses: actions/checkout@v2
+
+    - name: Set up Docker Buildx  # Sets up Docker Buildx (a CLI plugin that extends the docker command)
+      uses: docker/setup-buildx-action@v1
+      
+    - name: Set up Cloud SDK  # Setup the Google Cloud SDK (gcloud) to access Cloud Run and other services
+      uses: google-github-actions/setup-gcloud@v0
+      with:
+        project_id: ${{ secrets.PROJECT_ID }}  # Provide your Google Cloud project ID
+        service_account_key: ${{ secrets.GCR_JSON_KEY }}  # Provide the service account key to authorize access to Google Cloud
+        export_default_credentials: true
+
+    - name: Login to Google Container Registry  # Login to the Google Container Registry to store Docker images
+      uses: docker/login-action@v1 
+      with:
+        registry: gcr.io
+        username: _json_key
+        password: ${{ secrets.GCR_JSON_KEY }}
+
+    - name: Build and push Docker image  # Build the Docker image from the Dockerfile and push it to the Container Registry
+      uses: docker/build-push-action@v2
+      with:
+        context: .
+        push: true
+        tags: gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }}
+
+    - name: Deploy to Cloud Run  # Deploy the Docker image to Cloud Run
+      id: deploy
+      if: github.event.action != 'closed'  # Only deploy if the PR is not closed
+      uses: google-github-actions/deploy-cloudrun@main
+      with:
+        service: streamlit-app-pr-${{ github.event.pull_request.number }}  # Specify a unique name for the service per pull request
+        image: gcr.io/${{ secrets.PROJECT_ID }}/streamlit-app:${{ github.event.pull_request.number }}
+        credentials: ${{ secrets.GCR_JSON_KEY }}
+        region: us-central1 # Use the appropriate region for your needs
+        allow_unauthenticated: true  # Make the deployed app publicly accessible
+        
+    - name: Run ZAP Scan 
+      if: github.event.action != 'closed'
+      id: zap_scan
+      continue-on-error: true 
+      uses: zaproxy/action-full-scan@v0.5.1
+      with:
+        target: ${{ env.DEPLOYED_URL }}
+
+    - name: Delete service  # Delete the Cloud Run service when the PR is closed
+      if: github.event.action == 'closed'
+      run: |
+        gcloud run services delete streamlit-app-pr-${{ github.event.pull_request.number }} --platform managed --region us-central1 --quiet
+      env:
+        GCLOUD_PROJECT_ID: ${{ secrets.PROJECT_ID }}
+        GCLOUD_AUTH: ${{ secrets.GCR_JSON_KEY }}
+        
+    - name: Comment PR  # Add a comment to the PR with the URL of the deployed app
+      uses: actions/github-script@v5
+      with:
+        github-token: ${{ secrets.GH_PAT }}  # Use the personal access token to overcome restrictions of GITHUB_TOKEN
+        script: |
+          const issue_number = context.issue.number;
+          const url = '${{ steps.deploy.outputs.url }}';
+          github.rest.issues.createComment({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issue_number,
+            body: `🚀 Your preview environment has been deployed!\n\nYou can access it here: ${url}`
+          });
